@@ -28,7 +28,7 @@ pool.on("connect", () => {
 
 pool.on("error", (err) => {
   console.error("[DB] Unexpected pool error:", err.message);
-  process.exit(-1);
+  process.exit(1);
 });
 
 // Single Query
