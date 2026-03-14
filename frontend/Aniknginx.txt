@@ -1,0 +1,9 @@
+server {
+    listen 3000;               ← nginx listens on port 3000
+
+    location / {
+        root   /usr/share/nginx/html;   ← serve files from this folder (your React build)
+        index  index.html;              ← default file to serve
+        try_files $uri $uri/ /index.html;  ← React Router fix
+    }
+}

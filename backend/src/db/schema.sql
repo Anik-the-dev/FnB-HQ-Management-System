@@ -176,3 +176,33 @@ $$;
 INSERT INTO companies (name)
 VALUES ('FnB HQ')
 ON CONFLICT DO NOTHING;
+
+
+-- =============================================================================
+-- 9. USERS  (Authentication — admin and outlet staff)
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS users (
+    id          SERIAL        PRIMARY KEY,
+    username    VARCHAR(100)  NOT NULL UNIQUE,
+    password    VARCHAR(255)  NOT NULL,           -- bcrypt hashed
+    role        VARCHAR(20)   NOT NULL DEFAULT 'outlet'
+                    CHECK (role IN ('admin', 'outlet')),
+    outlet_id   INT           REFERENCES outlets(id) ON DELETE SET NULL,
+                                                  -- NULL for admin
+    is_active   BOOLEAN       NOT NULL DEFAULT TRUE,
+    created_at  TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT chk_outlet_required CHECK (
+        role = 'admin' OR outlet_id IS NOT NULL
+    )
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_username  ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_outlet_id ON users(outlet_id);
+
+-- updated_at trigger for users
+DROP TRIGGER IF EXISTS set_updated_at ON users;
+CREATE TRIGGER set_updated_at
+BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION trigger_set_updated_at();

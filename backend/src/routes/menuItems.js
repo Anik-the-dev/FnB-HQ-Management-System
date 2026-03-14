@@ -1,6 +1,8 @@
 import { Router } from "express";
 import * as menuItemController from "../controllers/menuItemController.js";
 import validate from "../middlewares/validate.js";
+import authenticate from "../middlewares/authenticate.js";
+import authorize from "../middlewares/authorize.js";
 import {
   createMenuItemRules,
   updateMenuItemRules,
@@ -8,15 +10,34 @@ import {
 } from "../validators/menuItemValidator.js";
 
 const router = Router();
+router.use(authenticate);
 
-router.get("/", listMenuItemsRules, validate, menuItemController.getAll);
+router.get(
+  "/",
+  authorize("admin"),
+  listMenuItemsRules,
+  validate,
+  menuItemController.getAll,
+);
 
-router.post("/", createMenuItemRules, validate, menuItemController.create);
+router.post(
+  "/",
+  authorize("admin"),
+  createMenuItemRules,
+  validate,
+  menuItemController.create,
+);
 
-router.get("/:id", menuItemController.getById);
+router.get("/:id", authorize("admin"), menuItemController.getById);
 
-router.put("/:id", updateMenuItemRules, validate, menuItemController.update);
+router.put(
+  "/:id",
+  authorize("admin"),
+  updateMenuItemRules,
+  validate,
+  menuItemController.update,
+);
 
-router.delete("/:id", menuItemController.remove);
+router.delete("/:id", authorize("admin"), menuItemController.remove);
 
 export default router;
