@@ -39,7 +39,7 @@ INSERT INTO outlet_menu_items (outlet_id, menu_item_id, override_price) VALUES
     (1, 1,  NULL), 
     (1, 2,  NULL),  
     (1, 3,  NULL),  
-    (1, 4,  NULL), 
+    (1, 4,  NULL)
 
 ON CONFLICT DO NOTHING;
 
@@ -47,7 +47,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO outlet_menu_items (outlet_id, menu_item_id, override_price) VALUES
     (2, 1,  NULL), 
     (2, 2,  250.00),
-    (2, 3,  NULL),   
+    (2, 3,  NULL)
 
 ON CONFLICT DO NOTHING;
 
@@ -80,5 +80,5 @@ ON CONFLICT DO NOTHING;
 INSERT INTO users (username, password, role, outlet_id) VALUES
     ('admin',
      '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-     'admin', NULL),
+     'admin', NULL)
 ON CONFLICT DO NOTHING;
