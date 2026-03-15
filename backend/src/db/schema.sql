@@ -24,12 +24,7 @@ CREATE TABLE IF NOT EXISTS outlets (
     updated_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW()
 );
 
--- Frequently filtered: outlets by company
-
-CREATE INDEX IF NOT EXISTS idx_outlets_company_id ON outlets(company_id);
-
 -- 3. MENU ITEMS
-
 CREATE TABLE IF NOT EXISTS menu_items (
     id            SERIAL          PRIMARY KEY,
     company_id    INT             NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
@@ -45,7 +40,6 @@ CREATE TABLE IF NOT EXISTS menu_items (
     CONSTRAINT uq_menu_items_company_name UNIQUE (company_id, name)
 );
 
-CREATE INDEX IF NOT EXISTS idx_menu_items_company_id ON menu_items(company_id);
 CREATE INDEX IF NOT EXISTS idx_menu_items_category   ON menu_items(category);
 
 
@@ -66,11 +60,8 @@ CREATE TABLE IF NOT EXISTS outlet_menu_items (
 
 -- Most queried: "give me all items for outlet X"
 CREATE INDEX IF NOT EXISTS idx_outlet_menu_items_outlet_id    ON outlet_menu_items(outlet_id);
-CREATE INDEX IF NOT EXISTS idx_outlet_menu_items_menu_item_id ON outlet_menu_items(menu_item_id);
-
 
 -- 5. INVENTORY
-
 CREATE TABLE IF NOT EXISTS inventory (
     id                  SERIAL      PRIMARY KEY,
     outlet_id           INT         NOT NULL REFERENCES outlets(id)    ON DELETE CASCADE,
@@ -83,10 +74,6 @@ CREATE TABLE IF NOT EXISTS inventory (
     -- One inventory row per item per outlet
     CONSTRAINT uq_inventory_outlet_item UNIQUE (outlet_id, menu_item_id)
 );
-
--- Heavily queried during every sale
-CREATE INDEX IF NOT EXISTS idx_inventory_outlet_id    ON inventory(outlet_id);
-CREATE INDEX IF NOT EXISTS idx_inventory_menu_item_id ON inventory(menu_item_id);
 
 
 -- 6. OUTLET RECEIPT COUNTERS  (OT1-20260315-0012)
@@ -116,7 +103,6 @@ CREATE TABLE IF NOT EXISTS transactions (
 
 -- Reporting queries always filter/group by outlet and date
 CREATE INDEX IF NOT EXISTS idx_transactions_outlet_id  ON transactions(outlet_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON transactions(created_at);
 -- Composite: most reporting queries filter by outlet AND date range
 CREATE INDEX IF NOT EXISTS idx_transactions_outlet_created ON transactions(outlet_id, created_at DESC);
 
@@ -197,9 +183,6 @@ CREATE TABLE IF NOT EXISTS users (
         role = 'admin' OR outlet_id IS NOT NULL
     )
 );
-
-CREATE INDEX IF NOT EXISTS idx_users_username  ON users(username);
-CREATE INDEX IF NOT EXISTS idx_users_outlet_id ON users(outlet_id);
 
 -- updated_at trigger for users
 DROP TRIGGER IF EXISTS set_updated_at ON users;

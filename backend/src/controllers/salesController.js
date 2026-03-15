@@ -1,4 +1,3 @@
-// src/controllers/sales.controller.js
 import * as salesService from '../services/salesService.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { sendSuccess, sendCreated, sendError } from '../utils/response.js';

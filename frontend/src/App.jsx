@@ -37,9 +37,9 @@ export default function App() {
           <Route path="/users"   element={<Users />} />
         </Route>
 
-        {/* Outlet — outlet staff (and admin can visit too) */}
+        {/* Outlet — outlet staff */}
         <Route path="/outlet/:id" element={
-          <ProtectedRoute>
+          <ProtectedRoute role="outlet">
             <OutletLayout />
           </ProtectedRoute>
         }>

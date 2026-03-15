@@ -100,15 +100,6 @@ export default function OutletManagement() {
               >
                 <p className="text-sm font-medium text-gray-800">{o.name}</p>
                 <p className="text-xs text-gray-400 mt-0.5">{o.location}</p>
-                {/* <div className="flex gap-2 mt-1.5">
-                  <Badge color={o.is_active ? 'green' : 'gray'}>{o.is_active ? 'Active' : 'Inactive'}</Badge>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); navigate(`/outlet/${o.id}/pos`); }}
-                    className="text-xs text-teal-600 hover:text-teal-800"
-                  >
-                    Open POS →
-                  </button>
-                </div> */}
               </div>
             ))}
           </div>

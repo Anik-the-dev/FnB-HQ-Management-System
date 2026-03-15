@@ -75,27 +75,6 @@ export default function Login() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
-
-          <div className="mt-5 pt-4 border-t border-gray-50">
-            <p className="text-xs text-gray-400 text-center mb-2">Demo accounts</p>
-            <div className="space-y-1">
-              {[
-                { u: 'admin',   r: 'Admin — full access' },
-                { u: 'outlet1', r: 'Outlet Downtown' },
-                { u: 'outlet2', r: 'Outlet Midvalley' },
-                { u: 'outlet3', r: 'Outlet Bangsar' },
-              ].map((a) => (
-                <button
-                  key={a.u}
-                  onClick={() => setForm({ username: a.u, password: 'password123' })}
-                  className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <span className="text-xs font-mono font-medium text-blue-700">{a.u}</span>
-                  <span className="text-xs text-gray-400 ml-2">{a.r}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </div>
