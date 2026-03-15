@@ -15,7 +15,7 @@ export default function SalesHistory() {
 
   useEffect(() => {
     getSales(id, { limit: 50 })
-      .then((r) => setSales(r.data.data))
+      .then((response) => setSales(response.data.data))
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -24,16 +24,16 @@ export default function SalesHistory() {
     setDetail(null);
     setDetailLoading(true);
     getSaleByReceipt(id, sale.receipt_number)
-      .then((r) => setDetail(r.data.data))
+      .then((response) => setDetail(response.data.data))
       .finally(() => setDetailLoading(false));
   };
 
-  const formatTime = (dt) => {
-    const d = new Date(dt);
-    return d.toLocaleString('en-MY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const formatTime = (dateTime) => {
+    const date = new Date(dateTime);
+    return date.toLocaleString('en-MY', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   };
 
-  const totalRevenue = sales.reduce((s, t) => s + parseFloat(t.total_amount), 0);
+  const totalRevenue = sales.reduce((sum, sale) => sum + parseFloat(sale.total_amount), 0);
 
   if (loading) return <Spinner />;
 

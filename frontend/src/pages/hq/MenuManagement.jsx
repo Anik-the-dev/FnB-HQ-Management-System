@@ -19,7 +19,7 @@ export default function MenuManagement() {
   const [error, setError] = useState('');
 
   const load = () =>
-    getMenuItems().then((r) => setItems(r.data.data)).finally(() => setLoading(false));
+    getMenuItems().then((response) => setItems(response.data.data)).finally(() => setLoading(false));
 
   useEffect(() => { load(); }, []);
 
@@ -61,8 +61,8 @@ export default function MenuManagement() {
 
   if (loading) return <Spinner />;
 
-  const active = items.filter((i) => i.is_active);
-  const inactive = items.filter((i) => !i.is_active);
+  const active = items.filter((item) => item.is_active);
+  const inactive = items.filter((item) => !item.is_active);
 
   return (
     <div>

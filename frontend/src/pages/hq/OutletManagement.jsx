@@ -24,14 +24,14 @@ export default function OutletManagement() {
 
   const load = () =>
     Promise.all([getOutlets(), getMenuItems()])
-      .then(([o, m]) => { setOutlets(o.data.data); setMenuItems(m.data.data); })
+      .then(([outletsResponse, menuItemsResponse]) => { setOutlets(outletsResponse.data.data); setMenuItems(menuItemsResponse.data.data); })
       .finally(() => setLoading(false));
 
   useEffect(() => { load(); }, []);
 
   const selectOutlet = (outlet) => {
     setSelected(outlet);
-    getOutletMenu(outlet.id).then((r) => setOutletMenu(r.data.data));
+    getOutletMenu(outlet.id).then((response) => setOutletMenu(response.data.data));
   };
 
   const handleCreateOutlet = async () => {
@@ -56,7 +56,7 @@ export default function OutletManagement() {
       await assignMenuItem(selected.id, payload);
       setShowAssign(false);
       setAssignForm({ menu_item_id: '', override_price: '' });
-      getOutletMenu(selected.id).then((r) => setOutletMenu(r.data.data));
+      getOutletMenu(selected.id).then((response) => setOutletMenu(response.data.data));
     } catch (e) {
       setError(e.response?.data?.error || 'Error assigning item.');
     } finally { setSaving(false); }
@@ -65,16 +65,16 @@ export default function OutletManagement() {
   const handleRemove = async (menuItemId) => {
     if (!confirm('Remove this item from outlet?')) return;
     await removeAssignment(selected.id, menuItemId);
-    getOutletMenu(selected.id).then((r) => setOutletMenu(r.data.data));
+    getOutletMenu(selected.id).then((response) => setOutletMenu(response.data.data));
   };
 
   const handleToggleAvailable = async (menuItemId, currentVal) => {
     await updateAssignment(selected.id, menuItemId, { is_available: !currentVal });
-    getOutletMenu(selected.id).then((r) => setOutletMenu(r.data.data));
+    getOutletMenu(selected.id).then((response) => setOutletMenu(response.data.data));
   };
 
-  const assignedIds = outletMenu.map((i) => i.menu_item_id);
-  const unassigned = menuItems.filter((m) => m.is_active && !assignedIds.includes(m.id));
+  const assignedIds = outletMenu.map((menuItem) => menuItem.menu_item_id);
+  const unassigned = menuItems.filter((menuItem) => menuItem.is_active && !assignedIds.includes(menuItem.id));
 
   if (loading) return <Spinner />;
 
@@ -92,14 +92,14 @@ export default function OutletManagement() {
         <div className="bg-white rounded-xl border border-gray-100 p-4">
           <h2 className="text-sm font-semibold text-gray-700 mb-3">Outlets</h2>
           <div className="space-y-2">
-            {outlets.map((o) => (
+            {outlets.map((outlet) => (
               <div
-                key={o.id}
-                onClick={() => selectOutlet(o)}
-                className={`p-3 rounded-lg border cursor-pointer transition-colors ${selected?.id === o.id ? 'border-blue-400 bg-blue-50' : 'border-gray-100 hover:border-blue-200 hover:bg-gray-50'}`}
+                key={outlet.id}
+                onClick={() => selectOutlet(outlet)}
+                className={`p-3 rounded-lg border cursor-pointer transition-colors ${selected?.id === outlet.id ? 'border-blue-400 bg-blue-50' : 'border-gray-100 hover:border-blue-200 hover:bg-gray-50'}`}
               >
-                <p className="text-sm font-medium text-gray-800">{o.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{o.location}</p>
+                <p className="text-sm font-medium text-gray-800">{outlet.name}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{outlet.location}</p>
               </div>
             ))}
           </div>
@@ -192,8 +192,8 @@ export default function OutletManagement() {
               <label className="text-xs font-medium text-gray-600 block mb-1">Menu item *</label>
               <select className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" value={assignForm.menu_item_id} onChange={(e) => setAssignForm({ ...assignForm, menu_item_id: e.target.value })}>
                 <option value="">Select item...</option>
-                {unassigned.map((m) => (
-                  <option key={m.id} value={m.id}>{m.name} — BDT {parseFloat(m.base_price).toFixed(2)}</option>
+                {unassigned.map((menuItem) => (
+                  <option key={menuItem.id} value={menuItem.id}>{menuItem.name} — BDT {parseFloat(menuItem.base_price).toFixed(2)}</option>
                 ))}
               </select>
             </div>

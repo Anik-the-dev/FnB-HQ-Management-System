@@ -18,7 +18,7 @@ export default function Users() {
 
   const load = () =>
     Promise.all([getUsers(), getOutlets()])
-      .then(([u, o]) => { setUsers(u.data.data); setOutlets(o.data.data); })
+      .then(([usersResponse, outletsResponse]) => { setUsers(usersResponse.data.data); setOutlets(outletsResponse.data.data); })
       .finally(() => setLoading(false));
 
   useEffect(() => { load(); }, []);
@@ -74,22 +74,22 @@ export default function Users() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {users.map((u) => (
-                <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-5 py-3.5 font-medium text-gray-800 font-mono text-xs">{u.username}</td>
+              {users.map((user) => (
+                <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-5 py-3.5 font-medium text-gray-800 font-mono text-xs">{user.username}</td>
                   <td className="px-5 py-3.5">
-                    <Badge color={u.role === 'admin' ? 'blue' : 'teal'}>{u.role}</Badge>
+                    <Badge color={user.role === 'admin' ? 'blue' : 'teal'}>{user.role}</Badge>
                   </td>
-                  <td className="px-5 py-3.5 text-gray-500">{u.outlet_name || '—'}</td>
+                  <td className="px-5 py-3.5 text-gray-500">{user.outlet_name || '—'}</td>
                   <td className="px-5 py-3.5">
-                    <Badge color={u.is_active ? 'green' : 'gray'}>{u.is_active ? 'Active' : 'Inactive'}</Badge>
+                    <Badge color={user.is_active ? 'green' : 'gray'}>{user.is_active ? 'Active' : 'Inactive'}</Badge>
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <button
-                      onClick={() => handleToggle(u)}
-                      className={`text-xs ${u.is_active ? 'text-red-500 hover:text-red-700' : 'text-green-600 hover:text-green-800'}`}
+                      onClick={() => handleToggle(user)}
+                      className={`text-xs ${user.is_active ? 'text-red-500 hover:text-red-700' : 'text-green-600 hover:text-green-800'}`}
                     >
-                      {u.is_active ? 'Deactivate' : 'Activate'}
+                      {user.is_active ? 'Deactivate' : 'Activate'}
                     </button>
                   </td>
                 </tr>
@@ -141,8 +141,8 @@ export default function Users() {
                   onChange={(e) => setForm({ ...form, outlet_id: e.target.value })}
                 >
                   <option value="">Select outlet...</option>
-                  {outlets.map((o) => (
-                    <option key={o.id} value={o.id}>{o.name}</option>
+                  {outlets.map((outlet) => (
+                    <option key={outlet.id} value={outlet.id}>{outlet.name}</option>
                   ))}
                 </select>
               </div>

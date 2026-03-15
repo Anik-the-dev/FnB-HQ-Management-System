@@ -11,22 +11,23 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+
   useEffect(() => {
     Promise.all([getOutlets(), getRevenueReport()])
-      .then(([o, r]) => {
-        setOutlets(o.data.data);
-        setRevenue(r.data.data);
+      .then(([outletsResponse, revenueResponse]) => {
+        setOutlets(outletsResponse.data.data);
+        setRevenue(revenueResponse.data.data);
       })
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Spinner />;
 
-  const totalRevenue = revenue.reduce((s, r) => s + parseFloat(r.total_revenue), 0);
-  const totalSales = revenue.reduce((s, r) => s + parseInt(r.total_sales), 0);
-  const chartData = revenue.map((r) => ({
-    name: r.outlet_name.replace('Outlet ', ''),
-    revenue: parseFloat(parseFloat(r.total_revenue).toFixed(2)),
+  const totalRevenue = revenue.reduce((sum, revenueItem) => sum + parseFloat(revenueItem.total_revenue), 0);
+  const totalSales = revenue.reduce((sum, revenueItem) => sum + parseInt(revenueItem.total_sales), 0);
+  const chartData = revenue.map((revenueItem) => ({
+    name: revenueItem.outlet_name.replace('Outlet ', ''),
+    revenue: parseFloat(parseFloat(revenueItem.total_revenue).toFixed(2)),
   }));
 
   return (
@@ -37,7 +38,7 @@ export default function Dashboard() {
         <StatCard label="Outlets" value={outlets.length} />
         <StatCard label="Total sales" value={totalSales} />
         <StatCard label="Total revenue" value={`BDT ${totalRevenue.toFixed(2)}`} />
-        <StatCard label="Active outlets" value={outlets.filter((o) => o.is_active).length} />
+        <StatCard label="Active outlets" value={outlets.filter((outlet) => outlet.is_active).length} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -56,18 +57,18 @@ export default function Dashboard() {
         <div className="bg-white rounded-xl border border-gray-100 p-5">
           <h2 className="text-sm font-semibold text-gray-700 mb-4">Outlets</h2>
           <div className="space-y-2">
-            {outlets.map((o) => (
+            {outlets.map((outlet) => (
               <div
-                key={o.id}
-                onClick={() => navigate(`/outlet/${o.id}/pos`)}
+                key={outlet.id}
+                onClick={() => navigate(`/outlet/${outlet.id}/pos`)}
                 className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:border-blue-300 hover:bg-blue-50 cursor-pointer transition-colors"
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{o.name}</p>
-                  <p className="text-xs text-gray-400">{o.location}</p>
+                  <p className="text-sm font-medium text-gray-800">{outlet.name}</p>
+                  <p className="text-xs text-gray-400">{outlet.location}</p>
                 </div>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${o.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                  {o.is_active ? 'Active' : 'Inactive'}
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${outlet.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                  {outlet.is_active ? 'Active' : 'Inactive'}
                 </span>
               </div>
             ))}

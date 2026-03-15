@@ -24,18 +24,18 @@ export default function HQLayout() {
         <div className="flex items-center gap-8">
           <span className="font-semibold text-lg tracking-tight">FnB HQ</span>
           <div className="flex gap-1">
-            {links.map((l) => (
+            {links.map((link) => (
               <NavLink
-                key={l.to}
-                to={l.to}
-                end={l.to === '/'}
+                key={link.to}
+                to={link.to}
+                end={link.to === '/'}
                 className={({ isActive }) =>
                   `px-3 py-1.5 rounded-lg text-sm transition-colors ${
                     isActive ? 'bg-blue-600 text-white' : 'text-blue-200 hover:text-white hover:bg-blue-600/50'
                   }`
                 }
               >
-                {l.label}
+                {link.label}
               </NavLink>
             ))}
           </div>

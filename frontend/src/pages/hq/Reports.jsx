@@ -14,33 +14,33 @@ export default function Reports() {
 
   useEffect(() => {
     Promise.all([getOutlets(), getRevenueReport()])
-      .then(([o, r]) => {
-        setOutlets(o.data.data);
-        setRevenue(r.data.data);
-        if (o.data.data.length > 0) {
-          const first = o.data.data[0].id;
-          setSelectedOutlet(first);
-          return getTopItems(first);
+      .then(([outletsResponse, revenueResponse]) => {
+        setOutlets(outletsResponse.data.data);
+        setRevenue(revenueResponse.data.data);
+        if (outletsResponse.data.data.length > 0) {
+          const firstOutletId = outletsResponse.data.data[0].id;
+          setSelectedOutlet(firstOutletId);
+          return getTopItems(firstOutletId);
         }
       })
-      .then((t) => { if (t) setTopItems(t.data.data); })
+      .then((topItemsResponse) => { if (topItemsResponse) setTopItems(topItemsResponse.data.data); })
       .finally(() => setLoading(false));
   }, []);
 
   const handleOutletChange = (id) => {
     setSelectedOutlet(id);
     setTopLoading(true);
-    getTopItems(id).then((r) => setTopItems(r.data.data)).finally(() => setTopLoading(false));
+    getTopItems(id).then((response) => setTopItems(response.data.data)).finally(() => setTopLoading(false));
   };
 
   if (loading) return <Spinner />;
 
-  const totalRevenue = revenue.reduce((s, r) => s + parseFloat(r.total_revenue), 0);
-  const totalSales = revenue.reduce((s, r) => s + parseInt(r.total_sales), 0);
-  const chartData = revenue.map((r) => ({
-    name: r.outlet_name.replace('Outlet ', ''),
-    revenue: parseFloat(parseFloat(r.total_revenue).toFixed(2)),
-    sales: parseInt(r.total_sales),
+  const totalRevenue = revenue.reduce((sum, revenueItem) => sum + parseFloat(revenueItem.total_revenue), 0);
+  const totalSales = revenue.reduce((sum, revenueItem) => sum + parseInt(revenueItem.total_sales), 0);
+  const chartData = revenue.map((revenueItem) => ({
+    name: revenueItem.outlet_name.replace('Outlet ', ''),
+    revenue: parseFloat(parseFloat(revenueItem.total_revenue).toFixed(2)),
+    sales: parseInt(revenueItem.total_sales),
   }));
 
   return (
@@ -62,7 +62,7 @@ export default function Reports() {
             <BarChart data={chartData} barSize={36}>
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `BDT ${v}`} />
-              <Tooltip formatter={(v, n) => [n === 'revenue' ? `BDT ${v}` : v, n === 'revenue' ? 'Revenue' : 'Sales']} />
+              <Tooltip formatter={(value, name) => [name === 'revenue' ? `BDT ${value}` : value, name === 'revenue' ? 'Revenue' : 'Sales']} />
               <Bar dataKey="revenue" fill="#1d4ed8" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -77,8 +77,8 @@ export default function Reports() {
               onChange={(e) => handleOutletChange(e.target.value)}
               className="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none"
             >
-              {outlets.map((o) => (
-                <option key={o.id} value={o.id}>{o.name}</option>
+              {outlets.map((outlet) => (
+                <option key={outlet.id} value={outlet.id}>{outlet.name}</option>
               ))}
             </select>
           </div>
@@ -87,22 +87,22 @@ export default function Reports() {
             <p className="text-sm text-gray-400 text-center py-8">No sales data yet.</p>
           ) : (
             <div className="space-y-3">
-              {topItems.map((item, i) => (
-                <div key={item.menu_item_id} className="flex items-center gap-3">
-                  <span className="w-5 text-xs font-semibold text-gray-400">#{i + 1}</span>
+              {topItems.map((menuItem, index) => (
+                <div key={menuItem.menu_item_id} className="flex items-center gap-3">
+                  <span className="w-5 text-xs font-semibold text-gray-400">#{index + 1}</span>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700">{item.name}</span>
-                      <span className="text-xs font-semibold text-blue-700">BDT {parseFloat(item.total_revenue).toFixed(2)}</span>
+                      <span className="text-sm font-medium text-gray-700">{menuItem.name}</span>
+                      <span className="text-xs font-semibold text-blue-700">BDT {parseFloat(menuItem.total_revenue).toFixed(2)}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 h-1.5 bg-gray-100 rounded-full">
                         <div
                           className="h-1.5 bg-blue-500 rounded-full"
-                          style={{ width: `${(item.total_quantity / topItems[0].total_quantity) * 100}%` }}
+                          style={{ width: `${(menuItem.total_quantity / topItems[0].total_quantity) * 100}%` }}
                         />
                       </div>
-                      <span className="text-xs text-gray-400">{item.total_quantity} sold</span>
+                      <span className="text-xs text-gray-400">{menuItem.total_quantity} sold</span>
                     </div>
                   </div>
                 </div>
@@ -123,18 +123,18 @@ export default function Reports() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {revenue.map((r) => (
-                <tr key={r.outlet_id} className="hover:bg-gray-50">
-                  <td className="px-5 py-3 font-medium text-gray-800">{r.outlet_name}</td>
-                  <td className="px-5 py-3 text-gray-600">{r.total_sales}</td>
-                  <td className="px-5 py-3 font-semibold text-blue-700">BDT {parseFloat(r.total_revenue).toFixed(2)}</td>
+              {revenue.map((revenueItem) => (
+                <tr key={revenueItem.outlet_id} className="hover:bg-gray-50">
+                  <td className="px-5 py-3 font-medium text-gray-800">{revenueItem.outlet_name}</td>
+                  <td className="px-5 py-3 text-gray-600">{revenueItem.total_sales}</td>
+                  <td className="px-5 py-3 font-semibold text-blue-700">BDT {parseFloat(revenueItem.total_revenue).toFixed(2)}</td>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-2">
                       <div className="w-20 h-1.5 bg-gray-100 rounded-full">
-                        <div className="h-1.5 bg-blue-400 rounded-full" style={{ width: totalRevenue > 0 ? `${(parseFloat(r.total_revenue) / totalRevenue) * 100}%` : '0%' }} />
+                        <div className="h-1.5 bg-blue-400 rounded-full" style={{ width: totalRevenue > 0 ? `${(parseFloat(revenueItem.total_revenue) / totalRevenue) * 100}%` : '0%' }} />
                       </div>
                       <span className="text-xs text-gray-400">
-                        {totalRevenue > 0 ? `${((parseFloat(r.total_revenue) / totalRevenue) * 100).toFixed(1)}%` : '0%'}
+                        {totalRevenue > 0 ? `${((parseFloat(revenueItem.total_revenue) / totalRevenue) * 100).toFixed(1)}%` : '0%'}
                       </span>
                     </div>
                   </td>

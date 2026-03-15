@@ -40,17 +40,17 @@ export default function OutletLayout() {
             <span className="font-semibold text-lg tracking-tight">{name}</span>
           </div>
           <div className="flex gap-1">
-            {links.map((l) => (
+            {links.map((link) => (
               <NavLink
-                key={l.to}
-                to={l.to}
+                key={link.to}
+                to={link.to}
                 className={({ isActive }) =>
                   `px-3 py-1.5 rounded-lg text-sm transition-colors ${
                     isActive ? 'bg-teal-600 text-white' : 'text-teal-200 hover:text-white hover:bg-teal-600/50'
                   }`
                 }
               >
-                {l.label}
+                {link.label}
               </NavLink>
             ))}
           </div>

@@ -17,29 +17,29 @@ export default function POS() {
 
   useEffect(() => {
     getOutletMenu(id)
-      .then((r) => setMenu(r.data.data.filter((i) => i.is_available)))
+      .then((response) => setMenu(response.data.data.filter((menuItem) => menuItem.is_available)))
       .finally(() => setLoading(false));
   }, [id]);
 
   const addToCart = (item) => {
-    setCart((prev) => {
-      const existing = prev.find((c) => c.menu_item_id === item.menu_item_id);
-      if (existing) return prev.map((c) => c.menu_item_id === item.menu_item_id ? { ...c, quantity: c.quantity + 1 } : c);
-      return [...prev, { menu_item_id: item.menu_item_id, name: item.name, price: parseFloat(item.effective_price), quantity: 1 }];
+    setCart((prevCart) => {
+      const existing = prevCart.find((cartItem) => cartItem.menu_item_id === item.menu_item_id);
+      if (existing) return prevCart.map((cartItem) => cartItem.menu_item_id === item.menu_item_id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem);
+      return [...prevCart, { menu_item_id: item.menu_item_id, name: item.name, price: parseFloat(item.effective_price), quantity: 1 }];
     });
   };
 
   const removeFromCart = (menuItemId) => {
-    setCart((prev) => {
-      const existing = prev.find((c) => c.menu_item_id === menuItemId);
-      if (existing.quantity === 1) return prev.filter((c) => c.menu_item_id !== menuItemId);
-      return prev.map((c) => c.menu_item_id === menuItemId ? { ...c, quantity: c.quantity - 1 } : c);
+    setCart((prevCart) => {
+      const existing = prevCart.find((cartItem) => cartItem.menu_item_id === menuItemId);
+      if (existing.quantity === 1) return prevCart.filter((cartItem) => cartItem.menu_item_id !== menuItemId);
+      return prevCart.map((cartItem) => cartItem.menu_item_id === menuItemId ? { ...cartItem, quantity: cartItem.quantity - 1 } : cartItem);
     });
   };
 
   const clearCart = () => setCart([]);
 
-  const total = cart.reduce((s, c) => s + c.price * c.quantity, 0);
+  const total = cart.reduce((sum, cartItem) => sum + cartItem.price * cartItem.quantity, 0);
 
   const handleConfirm = async () => {
     if (cart.length === 0) return;
@@ -100,7 +100,7 @@ export default function POS() {
     );
   }
 
-  const categories = [...new Set(menu.map((i) => i.category).filter(Boolean))];
+  const categories = [...new Set(menu.map((menuItem) => menuItem.category).filter(Boolean))];
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -108,14 +108,14 @@ export default function POS() {
       <div className="md:col-span-2">
         <h1 className="text-xl font-semibold text-gray-800 mb-4">POS</h1>
         {categories.length > 0 ? (
-          categories.map((cat) => (
-            <div key={cat} className="mb-5">
+          categories.map((category) => (
+            <div key={category} className="mb-5">
               <div className="flex items-center gap-2 mb-2">
-                <Badge color={CATEGORY_COLORS[cat] || 'gray'}>{cat}</Badge>
+                <Badge color={CATEGORY_COLORS[category] || 'gray'}>{category}</Badge>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {menu.filter((i) => i.category === cat).map((item) => {
-                  const inCart = cart.find((c) => c.menu_item_id === item.menu_item_id);
+                {menu.filter((menuItem) => menuItem.category === category).map((item) => {
+                  const inCart = cart.find((cartItem) => cartItem.menu_item_id === item.menu_item_id);
                   return (
                     <div
                         key={item.menu_item_id}
@@ -152,7 +152,7 @@ export default function POS() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {menu.map((item) => {
-              const inCart = cart.find((c) => c.menu_item_id === item.menu_item_id);
+              const inCart = cart.find((cartItem) => cartItem.menu_item_id === item.menu_item_id);
               return (
                 <button
                   key={item.menu_item_id}
@@ -181,14 +181,14 @@ export default function POS() {
           <p className="text-sm text-gray-400 text-center py-8">Tap items to add</p>
         ) : (
           <div className="space-y-2 mb-4">
-            {cart.map((c) => (
-              <div key={c.menu_item_id} className="flex items-center justify-between">
+            {cart.map((cartItem) => (
+              <div key={cartItem.menu_item_id} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => removeFromCart(c.menu_item_id)} className="w-5 h-5 rounded-full border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 text-xs flex items-center justify-center transition-colors">−</button>
-                  <span className="text-sm text-gray-700">{c.name}</span>
-                  <span className="text-xs text-gray-400">x{c.quantity}</span>
+                  <button onClick={() => removeFromCart(cartItem.menu_item_id)} className="w-5 h-5 rounded-full border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-300 text-xs flex items-center justify-center transition-colors">−</button>
+                  <span className="text-sm text-gray-700">{cartItem.name}</span>
+                  <span className="text-xs text-gray-400">x{cartItem.quantity}</span>
                 </div>
-                <span className="text-sm font-medium text-gray-800">BDT {(c.price * c.quantity).toFixed(2)}</span>
+                <span className="text-sm font-medium text-gray-800">BDT {(cartItem.price * cartItem.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>

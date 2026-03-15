@@ -21,7 +21,7 @@ export default function Inventory() {
   const [error, setError] = useState('');
 
   const load = () =>
-    getInventory(id).then((r) => setInventory(r.data.data)).finally(() => setLoading(false));
+    getInventory(id).then((response) => setInventory(response.data.data)).finally(() => setLoading(false));
 
   useEffect(() => { load(); }, [id]);
 
@@ -41,8 +41,8 @@ export default function Inventory() {
 
   if (loading) return <Spinner />;
 
-  const low = inventory.filter((i) => i.quantity_on_hand > 0 && i.quantity_on_hand <= i.low_stock_threshold);
-  const empty = inventory.filter((i) => i.quantity_on_hand === 0);
+  const low = inventory.filter((item) => item.quantity_on_hand > 0 && item.quantity_on_hand <= item.low_stock_threshold);
+  const empty = inventory.filter((item) => item.quantity_on_hand === 0);
 
   return (
     <div>
@@ -52,12 +52,12 @@ export default function Inventory() {
         <div className="mb-5 space-y-2">
           {empty.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-              {empty.length} item{empty.length > 1 ? 's' : ''} out of stock: {empty.map((i) => i.menu_item_name).join(', ')}
+              {empty.length} item{empty.length > 1 ? 's' : ''} out of stock: {empty.map((item) => item.menu_item_name).join(', ')}
             </div>
           )}
           {low.length > 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
-              {low.length} item{low.length > 1 ? 's' : ''} running low: {low.map((i) => i.menu_item_name).join(', ')}
+              {low.length} item{low.length > 1 ? 's' : ''} running low: {low.map((item) => item.menu_item_name).join(', ')}
             </div>
           )}
         </div>
