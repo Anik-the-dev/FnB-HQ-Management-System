@@ -18,8 +18,8 @@ Single Company → Multiple Outlets → HQ assigns menu → Outlets create sales
 # Live Site ( Need to wait 30sec  to activate as Render free tier goes down due to inactivity)
 https://fnb-frontend.onrender.com
 
-Admin login: username: admin, password: password
-Chittagong Outlet Login: username: anik, password: password
+-- Admin login: username: admin, password: password
+-- Chittagong Outlet Login: username: anik, password: password
 
 # API Endpoints ( Postman Collection: )
 
