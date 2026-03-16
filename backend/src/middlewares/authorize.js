@@ -1,13 +1,4 @@
 
-// Usage:
-//   authorize('admin')              → only admin
-//   authorize('admin', 'outlet')    → both roles allowed
-//   authorize('outlet', { param: 'outletId' })
-//     → outlet staff can only access their own outlet_id
-//
-// For outlet-scoped routes, pass the name of the URL param that
-// holds the outlet id (defaults to 'outletId').
-
 const authorize = (...args) => {
   // Separate roles from options
   const roles   = args.filter((a) => typeof a === 'string');

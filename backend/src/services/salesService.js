@@ -1,5 +1,3 @@
-// Most critical service — handles atomicity and concurrency for sales.
-
 import { getClient } from "../config/db.js";
 import * as salesRepo from "../repositories/salesRepository.js";
 import { buildReceiptNumber } from "../utils/receiptNumber.js";
@@ -12,7 +10,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
 
     const menuItemIds = items.map((i) => i.menu_item_id);
 
-    // ── Step 1: Verify all items are assigned + get effective prices ──
+    // Verify all items are assigned, get effective prices
     const pricedItems = await salesRepo.getEffectivePrices(
       client,
       outlet_id,
@@ -37,7 +35,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
       ]),
     );
 
-    // ── Step 2: Lock inventory rows (SELECT FOR UPDATE) ───────────────
+    // Lock inventory rows
     const inventoryRows = await salesRepo.lockInventoryRows(
       client,
       outlet_id,
@@ -49,7 +47,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
       inventoryRows.map((r) => [r.menu_item_id, r.quantity_on_hand]),
     );
 
-    // ── Step 3: Validate stock for ALL items before deducting any ─────
+    // Validate stock for ALL items before deducting any
     const stockErrors = [];
     for (const item of items) {
       const available = stockMap[item.menu_item_id] ?? 0;
@@ -70,7 +68,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
       throw err;
     }
 
-    // ── Step 4: Deduct stock atomically ──────────────────────────────
+    // Deduct stock atomically 
     for (const item of items) {
       await salesRepo.deductStock(
         client,
@@ -80,11 +78,11 @@ export const createSale = async ({ outlet_id, items, notes }) => {
       );
     }
 
-    // ── Step 5: Get next receipt sequence (locked) ───────────────────
+    //Get next receipt sequence (locked)
     const sequence = await salesRepo.incrementReceiptCounter(client, outlet_id);
     const receiptNumber = buildReceiptNumber(outlet_id, sequence);
 
-    // ── Step 6: Build line items with snapshotted prices ─────────────
+    // Build line items with snapshotted prices
     const lineItems = items.map((item) => {
       const unit_price = priceMap[item.menu_item_id].price;
       return {
@@ -97,7 +95,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
 
     const total_amount = lineItems.reduce((sum, i) => sum + i.subtotal, 0);
 
-    // ── Step 7: Insert transaction header ────────────────────────────
+    // Insert transaction header
     const transaction = await salesRepo.createTransaction(client, {
       outlet_id,
       receipt_number: receiptNumber,
@@ -105,7 +103,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
       notes,
     });
 
-    // ── Step 8: Insert line items ─────────────────────────────────────
+    // Insert line items 
     const transactionItems = await salesRepo.createTransactionItems(
       client,
       transaction.id,
@@ -130,7 +128,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
     await client.query("ROLLBACK");
     throw err;
   } finally {
-    client.release(); // always release back to pool
+    client.release();
   }
 };
 

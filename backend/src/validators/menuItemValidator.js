@@ -15,7 +15,7 @@ export const createMenuItemRules = [
   body('category')
     .optional()
     .trim()
-    .isLength({ max: 100 }).withMessage('Category must be under 100 characters'),
+    .isLength({ max: 250 }).withMessage('Category must be under 250 characters'),
 ];
 
 export const updateMenuItemRules = [
@@ -29,11 +29,12 @@ export const updateMenuItemRules = [
     .isFloat({ min: 0 }).withMessage('base_price must be 0 or greater'),
   body('description')
     .optional()
-    .trim(),
+    .trim()
+    .isLength({ max: 1000 }).withMessage('Description must be under 1000 characters'),
   body('category')
     .optional()
     .trim()
-    .isLength({ max: 100 }).withMessage('Category must be under 100 characters'),
+    .isLength({ max: 250 }).withMessage('Category must be under 250 characters'),
   body('is_active')
     .optional()
     .isBoolean().withMessage('is_active must be a boolean'),
