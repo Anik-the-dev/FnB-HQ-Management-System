@@ -228,7 +228,7 @@ for evolving the system as traffic grows:
 - **Connection pooling** — We can add PgBouncer between the app and PostgreSQL. Handles 1000+ concurrent users with a fixed pool of 20 DB connections.
 - **Horizontal scaling** — The Express app is stateless (JWT carries all session state). Run multiple instances behind a load balancer — no sticky sessions needed.
 - **Caching** — Cache menu items and outlet assignments in Redis (60s TTL). Invalidate on HQ update. Reduces DB load on every POS page load.
-**Job queue for sales** — Under very high concurrency, move sale creation to a job queue (BullMQ + Redis). The POS submits a job and gets a job ID back immediately without waiting for the DB transaction to complete. A background worker processes the queue and the POS polls for the receipt. This decouples HTTP response time from DB transaction time and prevents request pile-up during peak hours.
+- **Job queue for sales** — Under very high concurrency, move sale creation to a job queue (BullMQ + Redis). The POS submits a job and gets a job ID back immediately without waiting for the DB transaction to complete. A background worker processes the queue and the POS polls for the receipt. This decouples HTTP response time from DB transaction time and prevents request pile-up during peak hours.
 
 
 # Project Structure

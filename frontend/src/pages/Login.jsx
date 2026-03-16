@@ -7,6 +7,7 @@ export default function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showWaitWarning, setShowWaitWarning] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
@@ -14,6 +15,7 @@ export default function Login() {
     e.preventDefault();
     if (!form.username || !form.password) { setError('Enter username and password.'); return; }
     setLoading(true);
+    setShowWaitWarning(true);
     setError('');
     try {
       const res = await login(form);
@@ -25,6 +27,7 @@ export default function Login() {
       setError(e.response?.data?.error || 'Login failed.');
     } finally {
       setLoading(false);
+      setShowWaitWarning(false);
     }
   };
 
@@ -42,6 +45,11 @@ export default function Login() {
 
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {showWaitWarning && (
+              <p className="text-xs text-yellow-700 bg-yellow-50 px-3 py-2 rounded-lg">
+                Please wait 30sec to activate the free tier server...
+              </p>
+            )}
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1">Username</label>
               <input
