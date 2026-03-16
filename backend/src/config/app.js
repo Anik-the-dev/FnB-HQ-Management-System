@@ -18,6 +18,10 @@ const config = {
   cors: {
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
   },
+  jwt: {
+    secret: process.env.JWT_SECRET || "qwert12345cvbnm",
+    expiresIn: process.env.JWT_EXPIRES_IN || "1h",
+  },
 };
 
 export default config;

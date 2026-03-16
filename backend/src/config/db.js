@@ -6,6 +6,7 @@ const { Pool } = pg;
 const poolConfig = config.db.connectionString
   ? {
       connectionString: config.db.connectionString,
+      ssl: config.env === "production" ? { rejectUnauthorized: false } : false,
     }
   : {
       host: config.db.host,

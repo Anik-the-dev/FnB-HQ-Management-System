@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import config from "./config/app.js";
+import router       from './routes/index.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 const app = express();
 // Security middleware
@@ -26,6 +28,9 @@ app.get("/health", (_req, res) => {
   res.json({ success: true, message: "FnB API is running", env: config.env });
 });
 
+// Api routes
+app.use('/api', router);
+
 // Not Found 404
 app.use((req, res) => {
   res.status(404).json({
@@ -33,5 +38,8 @@ app.use((req, res) => {
     error: `Route ${req.method} ${req.originalUrl} not found`,
   });
 });
+
+// Global error handler
+app.use(errorHandler);
 
 export default app;
