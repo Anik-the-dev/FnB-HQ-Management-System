@@ -7,7 +7,6 @@ export const create = asyncHandler(async (req, res) => {
     const data = await salesService.createSale(req.body);
     sendCreated(res, data, 'Sale created successfully');
   } catch (err) {
-    // Surface stock errors with details
     if (err.statusCode === 400 && err.details) {
       return sendError(res, err.message, 400, err.details);
     }

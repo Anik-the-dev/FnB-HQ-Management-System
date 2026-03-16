@@ -9,9 +9,8 @@ const start = async () => {
 
     app.listen(config.port, () => {
       console.log(
-        `[SERVER] ${config.env} mode → http://localhost:${config.port}`,
+        `[SERVER] ${config.env} mode → port ${config.port}`,
       );
-      console.log(`[SERVER] Health → http://localhost:${config.port}/health`);
     });
   } catch (err) {
     console.error("[SERVER] DB connection failed:", err.message);

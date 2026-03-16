@@ -6,18 +6,20 @@ A company operates a central HQ system managing multiple F&B outlets. HQ manages
 Single Company → Multiple Outlets → HQ assigns menu → Outlets create sales → HQ sees reports.
 
 # Local Setup
-1: Clone the repo (git clone https://github.com/Anik-the-dev/FnB-HQ-Management-System.git)
-2: cp env.example .env (directory: FNB_HQ_MANAGEMENT)
-3: Fill env via your postgress connection string.
-4: Run docker instance in your machine(docker desktop)
-5: Run: "docker compose up --build" ( run the cmd where docker-compose.yml located)
-6: Browse http://localhost:3000/ to view the project.
-7: Admin login: username: admin, password: password
-8: Create users from admin panel for outets to view POS outlet, add stock and create sales.
+1. Clone the repo (git clone https://github.com/Anik-the-dev/FnB-HQ-Management-System.git)
+2. cp env.example .env (directory: FNB_HQ_MANAGEMENT)
+3. Fill env via your postgress connection string.
+4. Run docker instance in your machine(docker desktop)
+5. Run: "docker compose up --build" ( run the cmd where docker-compose.yml located)
+6. Browse http://localhost:3000/ to view the project.
+7. Admin login: username: admin, password: password
+8. Create users from admin panel for outets to view POS outlet, add stock and create sales.
 
-# Live Site ( Need to wait 2-3 minutes to activate as Render free tier goes down due to inactivity)
+# Live Site ( Need to wait 30sec  to activate as Render free tier goes down due to inactivity)
 https://fnb-frontend.onrender.com
 
+Admin login: username: admin, password: password
+Chittagong Outlet Login: username: anik, password: password
 
 # API Endpoints ( Postman Collection: )
 
@@ -46,7 +48,7 @@ https://fnb-frontend.onrender.com
 
 | Method | Endpoint                        | Access       | Description                |
 |--------|---------------------------------|--------------|----------------------------|
-| GET    | `/api/outlets`                  | Admin/Outlet | List all outlets           |
+| GET    | `/api/outlets`                  | Admin        | List all outlets           |
 | POST   | `/api/outlets`                  | Admin        | Create outlet              |
 | GET    | `/api/outlets/:id`              | Admin/Outlet | Get outlet by ID           |
 | PUT    | `/api/outlets/:id`              | Admin        | Update outlet              |
@@ -60,24 +62,24 @@ https://fnb-frontend.onrender.com
 
 | Method | Endpoint                           | Access       | Description                    |
 |--------|------------------------------------|--------------|--------------------------------|
-| GET    | `/api/inventory/:outletId`         | Admin/Outlet | Get outlet inventory           |
+| GET    | `/api/inventory/:outletId`         | Outlet       | Get outlet inventory           |
 | PUT    | `/api/inventory/:outletId/:itemId` | Admin        | Set absolute stock (HQ)        |
-| PATCH  | `/api/inventory/:outletId/:itemId` | Admin/Outlet | Adjust stock by delta (restock)|
+| PATCH  | `/api/inventory/:outletId/:itemId` | Outlet       | Adjust stock by delta (restock)|
 
 ### Sales
 
 | Method | Endpoint                                  | Access       | Description          |
 |--------|-------------------------------------------|--------------|----------------------|
-| POST   | `/api/sales`                              | Admin/Outlet | Create sale (atomic) |
-| GET    | `/api/sales/:outletId`                    | Admin/Outlet | List outlet sales    |
-| GET    | `/api/sales/:outletId/:receiptNumber`     | Admin/Outlet | Get sale by receipt  |
+| POST   | `/api/sales`                              | Outlet       | Create sale          |
+| GET    | `/api/sales/:outletId`                    | Outlet       | List outlet sales    |
+| GET    | `/api/sales/:outletId/:receiptNumber`     | Outlet       | Get sale by receipt  |
 
 ### Reports
 
 | Method | Endpoint                            | Access       | Description              |
 |--------|-------------------------------------|--------------|--------------------------|
 | GET    | `/api/reports/revenue`              | Admin        | Total revenue by outlet  |
-| GET    | `/api/reports/top-items/:outletId`  | Admin/Outlet | Top 5 selling items      |
+| GET    | `/api/reports/top-items/:outletId`  | Admin        | Top 5 selling items      |
 
 # Schema Explanation
 
@@ -218,50 +220,16 @@ App.jsx (AuthProvider)
 - `ProtectedRoute` checks role — outlet users cannot access HQ pages
 
 ## Scaling Strategy
+The current system runs on a single server. Below are the strategies 
+for evolving the system as traffic grows:
 
-### Database
+- **Read replica** — We can route all report and history queries to a PostgreSQL read replica. Writes (sales, stock updates) go to primary only.
+- **Table partitioning** — Partition the `transactions` table by month. Postgres scans only the relevant partition on date-range queries instead of the full table.
+- **Connection pooling** — We can add PgBouncer between the app and PostgreSQL. Handles 1000+ concurrent users with a fixed pool of 20 DB connections.
+- **Horizontal scaling** — The Express app is stateless (JWT carries all session state). Run multiple instances behind a load balancer — no sticky sessions needed.
+- **Caching** — Cache menu items and outlet assignments in Redis (60s TTL). Invalidate on HQ update. Reduces DB load on every POS page load.
+**Job queue for sales** — Under very high concurrency, move sale creation to a job queue (BullMQ + Redis). The POS submits a job and gets a job ID back immediately without waiting for the DB transaction to complete. A background worker processes the queue and the POS polls for the receipt. This decouples HTTP response time from DB transaction time and prevents request pile-up during peak hours.
 
-**Read replicas** — Reports and sales history are read-heavy. Add a PostgreSQL read replica and route all `SELECT` queries to it. Writes (sales creation, stock updates) go to the primary only.
-
-**Connection pooling** — Add PgBouncer between the app and PostgreSQL. It maintains a small fixed pool of DB connections and queues app requests against them. The app can serve 1000 concurrent users with only 20 DB connections.
-
-**Table partitioning** — The `transactions` table grows without bound. Partition it by `created_at` monthly or yearly. Old partitions can be archived. Query performance stays constant because Postgres only scans the relevant partition.
-
-**Indexes on demand** — Monitor slow queries with `pg_stat_statements`. Add indexes for any query taking more than 100ms. The current 14 indexes cover all known patterns.
-
-### Backend
-
-**Horizontal scaling** — The Express app is fully stateless. JWT tokens carry all session state. Run multiple instances behind a load balancer — any instance handles any request. No sticky sessions needed.
-
-**Job queue for sales** — Under very high concurrency, move sale creation to a job queue (BullMQ + Redis). The POS submits a job, gets a job ID back immediately, and polls for the receipt. This decouples HTTP response time from DB transaction time.
-
-**Caching** — Menu items and outlet assignments change infrequently but are read on every POS load. Cache them in Redis with a short TTL (60 seconds). Invalidate on HQ update.
-
-### Frontend
-
-**CDN** — The React build is static files. Serve them from a CDN (Cloudflare, AWS CloudFront). Users worldwide get sub-100ms load times regardless of where the backend is hosted.
-
-**Code splitting** — Vite can split HQ and outlet pages into separate chunks. An outlet user never downloads HQ code. Reduces initial bundle size significantly.
-
-### Multi-company (SaaS)
-
-The schema already has `company_id` on `outlets` and `menu_items`. To support multiple companies:
-
-1. Add `company_id` to the JWT payload
-2. Add `WHERE company_id = $1` to all repository queries
-3. Add a company management UI for a super-admin role
-4. Add PostgreSQL row-level security as a second enforcement layer
-
-No schema migration needed — the column is already there.
-
-### Infrastructure Roadmap
-
-| Stage      | Setup                                            |
-|------------|--------------------------------------------------|
-| MVP        | Render free tier, single backend instance        |
-| Growth     | Render paid, read replica, Redis cache           |
-| Scale      | Kubernetes or ECS, PgBouncer, CDN, job queue     |
-| Enterprise | Multi-region replication, dedicated DB cluster   |
 
 # Project Structure
 

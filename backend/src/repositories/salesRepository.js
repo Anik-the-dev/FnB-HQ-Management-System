@@ -1,8 +1,4 @@
 
-// NOTE: Sale creation uses a DB client (not pool.query) because the
-// entire operation must run on ONE connection inside BEGIN...COMMIT.
-// The client is passed in from the service layer.
-
 import { query } from '../config/db.js';
 
 // Lock inventory rows for all items — prevents concurrent oversell
