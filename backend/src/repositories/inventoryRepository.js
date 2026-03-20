@@ -54,3 +54,12 @@ export const adjustStock = async (outletId, menuItemId, adjustment) => {
   return rows[0] ?? null;
 };
 
+// Remove inventory record for a specific outlet and menu item
+export const removeInventory = async (outletId, menuItemId) => {
+  const { rowCount } = await query(
+    `DELETE FROM inventory WHERE outlet_id = $1 AND menu_item_id = $2`,
+    [outletId, menuItemId]
+  );
+  return rowCount > 0;
+};
+

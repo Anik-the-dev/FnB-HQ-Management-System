@@ -38,8 +38,8 @@ https://fnb-frontend.onrender.com
 
 | Method | Endpoint               | Access       | Description          |
 |--------|------------------------|--------------|----------------------|
-| GET    | `/api/menu-items`      | Admin/Outlet | List all menu items  |
-| GET    | `/api/menu-items/:id`  | Admin/Outlet | Get single item      |
+| GET    | `/api/menu-items`      | Admin        | List all menu items  |
+| GET    | `/api/menu-items/:id`  | Admin        | Get single item      |
 | POST   | `/api/menu-items`      | Admin        | Create menu item     |
 | PUT    | `/api/menu-items/:id`  | Admin        | Update menu item     |
 | DELETE | `/api/menu-items/:id`  | Admin        | Deactivate menu item |
@@ -50,7 +50,7 @@ https://fnb-frontend.onrender.com
 |--------|---------------------------------|--------------|----------------------------|
 | GET    | `/api/outlets`                  | Admin        | List all outlets           |
 | POST   | `/api/outlets`                  | Admin        | Create outlet              |
-| GET    | `/api/outlets/:id`              | Admin/Outlet | Get outlet by ID           |
+| GET    | `/api/outlets/:id`              | Outlet.      | Get outlet by ID           |
 | PUT    | `/api/outlets/:id`              | Admin        | Update outlet              |
 | GET    | `/api/outlets/:id/menu`         | Admin/Outlet | Get outlet assigned menu   |
 | POST   | `/api/outlets/:id/menu`         | Admin        | Assign item to outlet      |
