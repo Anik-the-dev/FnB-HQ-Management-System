@@ -26,7 +26,7 @@ export default function Dashboard() {
   const totalRevenue = revenue.reduce((sum, revenueItem) => sum + parseFloat(revenueItem.total_revenue), 0);
   const totalSales = revenue.reduce((sum, revenueItem) => sum + parseInt(revenueItem.total_sales), 0);
   const chartData = revenue.map((revenueItem) => ({
-    name: revenueItem.outlet_name.replace('Outlet ', ''),
+    name: revenueItem.outlet_name.replace('Outlet', ''),
     revenue: parseFloat(parseFloat(revenueItem.total_revenue).toFixed(2)),
   }));
 

@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useParams, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getOutlet } from '../../services/api.js';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -8,6 +8,11 @@ export default function OutletLayout() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [name, setName] = useState('Outlet');
+
+  // Outlet staff can only access their own outlet
+  if (user.role === 'outlet' && user.outlet_id !== parseInt(id)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   useEffect(() => {
     getOutlet(id).then((r) => setName(r.data.data.name)).catch(() => {});
@@ -29,14 +34,6 @@ export default function OutletLayout() {
       <nav className="bg-teal-700 text-white px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3">
-            {user?.role === 'admin' && (
-              <button
-                onClick={() => navigate('/')}
-                className="text-teal-300 hover:text-white text-sm transition-colors"
-              >
-                ← HQ
-              </button>
-            )}
             <span className="font-semibold text-lg tracking-tight">{name}</span>
           </div>
           <div className="flex gap-1">
