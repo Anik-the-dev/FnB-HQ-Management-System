@@ -3,11 +3,17 @@ import * as salesRepo from "../repositories/salesRepository.js";
 import { buildReceiptNumber } from "../utils/receiptNumber.js";
 
 export const createSale = async ({ outlet_id, items, notes }) => {
+  // Validate before touching the DB
+  if (!items || items.length === 0) {
+    const err = new Error("No items provided for transaction");
+    err.statusCode = 400;
+    throw err;
+  }
+  
   const client = await getClient();
 
   try {
     await client.query("BEGIN");
-
     const menuItemIds = items.map((i) => i.menu_item_id);
 
     // Verify all items are assigned, get effective prices
@@ -68,7 +74,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
       throw err;
     }
 
-    // Deduct stock atomically 
+    // Deduct stock atomically
     for (const item of items) {
       await salesRepo.deductStock(
         client,
@@ -103,7 +109,7 @@ export const createSale = async ({ outlet_id, items, notes }) => {
       notes,
     });
 
-    // Insert line items 
+    // Insert line items
     const transactionItems = await salesRepo.createTransactionItems(
       client,
       transaction.id,

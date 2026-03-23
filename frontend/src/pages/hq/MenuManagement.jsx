@@ -123,7 +123,7 @@ export default function MenuManagement() {
           <div className="space-y-3">
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1">Name *</label>
-              <input className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Nasi Lemak" />
+              <input className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-400" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Butter Chicken" />
             </div>
             <div>
               <label className="text-xs font-medium text-gray-600 block mb-1">Base price (BDT) *</label>

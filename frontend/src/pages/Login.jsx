@@ -56,7 +56,7 @@ export default function Login() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
-                placeholder="admin / outlet1 / outlet2 / outlet3"
+                placeholder="admin / outlet"
                 autoFocus
               />
             </div>
@@ -67,7 +67,7 @@ export default function Login() {
                 className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-blue-400"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="password123"
+                placeholder="password"
               />
             </div>
 
